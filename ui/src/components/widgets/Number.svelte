@@ -1,8 +1,10 @@
 <script>
+    import Wrapper from "./Wrapper.svelte";
+
     export let label, value;
 </script>
 
-<main>
+<Wrapper>
     <span>{label}</span>
     <input type="number" bind:value>
-</main>
+</Wrapper>
