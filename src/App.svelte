@@ -3,7 +3,8 @@
     import {expandAll} from "./stores";
     import Number from "./components/widgets/Number.svelte";
     import {onMount} from "svelte";
-    import Select from "./components/widgets/Select.svelte";
+    import String from "./components/widgets/String.svelte";
+    import Boolean from "./components/widgets/Boolean.svelte";
 
     let exampleKeys = [
         "SmartDashboard/shooter/tuning/frontRPM",
@@ -41,7 +42,6 @@
             }
         }
 
-        console.log(keys)
         selectedKeys = keys.filter(e => e.startsWith(path))
         tree = keysToTree(keys)
     }
@@ -55,6 +55,7 @@
         NetworkTables.addWsConnectionListener(function (connected) {
             if (connected) {
                 robotConnection = NetworkTables.getRobotAddress()
+                setTimeout(refreshDashboard, 500)
             } else {
                 robotConnection = "Disconnected"
             }
@@ -66,10 +67,6 @@
 
 <main>
     <div class="tree">
-        <div class="centered">
-            <button on:click={() => refreshDashboard()}>Refresh</button>
-            <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
-        </div>
         <Tree label="SmartDashboard" path="SmartDashboard"
               values={tree["SmartDashboard"] !== undefined ? tree["SmartDashboard"] : {}}/>
         <p>
@@ -80,10 +77,23 @@
     </div>
 
     <div class="view">
-        <h1>{path}</h1>
+        <div class="top-bar">
+            <h1>{path}</h1>
+            <div>
+                <button on:click={() => refreshDashboard()}>Refresh</button>
+                <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
+            </div>
+        </div>
         <div class="widgets">
             {#each selectedKeys as key}
-                <Number label={key.replace(path + '/', "")} value="10"/>
+                {#if (typeof NetworkTables.getValue("/" + key) === 'number')}
+                    <Number label={key.replace(path + '/', "")} key={"/"+key}/>
+                {:else if (typeof NetworkTables.getValue("/" + key) === 'string')}
+                    <String label={key.replace(path + '/', "")} key={"/"+key}/>
+                {:else if (typeof NetworkTables.getValue("/" + key) === 'boolean')}
+                    <Boolean label={key.replace(path + '/', "")} key={"/"+key}/>
+                {:else}
+                {/if}
             {/each}
         </div>
     </div>
@@ -107,15 +117,29 @@
         padding-left: 1.2rem;
     }
 
-
-    .centered {
-        text-align: center;
-    }
-
     .widgets {
         width: 100%;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+    }
+
+    .top-bar {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .top-bar button {
+        margin-bottom: 0;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .top-bar h1 {
+        margin-top: 0;
     }
 </style>
