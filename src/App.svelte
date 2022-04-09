@@ -31,7 +31,7 @@
 
         keys = []
         for (const key of NetworkTables.getKeys()) {
-            if (query === "" || key.includes(query)) {
+            if (query === "" || key.toLowerCase().includes(query.toLowerCase())) {
                 keys.push(key)
             }
         }
