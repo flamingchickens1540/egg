@@ -38,6 +38,7 @@
         selectedKeys = keys.filter(e => e.startsWith(path))
         tree = keysToTree(keys)[""]
     }
+    $: refreshDashboard(searchQuery)
 
     let isWsConnected = false;
     let robotConnection = "Waiting..."
@@ -50,7 +51,6 @@
                 robotConnection = NetworkTables.getRobotAddress()
                 setTimeout(() => {
                     refreshDashboard("")
-                    $: refreshDashboard(searchQuery)
                 }, 500)
             } else {
                 robotConnection = "Disconnected"

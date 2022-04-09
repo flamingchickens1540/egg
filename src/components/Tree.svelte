@@ -26,7 +26,7 @@
 <ul>
     <li>
         <!-- If self has children -->
-        {#if (Object.keys(values).length !== 0)}
+        {#if (values !== undefined && Object.keys(values).length !== 0)}
             <span on:click={toggleExpansion} class="arrow" class:arrowDown>&#x25b6</span>
             <span on:click={() => {window.location.hash = path}}>
                 {label}
