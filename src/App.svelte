@@ -129,8 +129,8 @@
 
     .top-bar button {
         margin-bottom: 0;
-        margin-left: 5px;
-        margin-right: 5px;
+        margin-left: 3px;
+        margin-right: 3px;
     }
 
     .top-bar h1 {
