@@ -107,9 +107,13 @@
 
     .tree {
         padding-top: 10px;
-        padding-right: 1.2rem;
+        padding-right: 10px;
         height: 100vh;
         border-right: white 1px solid;
+    }
+
+    .tree input {
+        width: 100%;
     }
 
     .view {
