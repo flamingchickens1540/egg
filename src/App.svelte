@@ -6,6 +6,7 @@
     import String from "./components/widgets/String.svelte";
     import Boolean from "./components/widgets/Boolean.svelte";
     import Field from "./components/widgets/Field.svelte";
+    import Wrapper from "./components/widgets/Wrapper.svelte";
 
     function keysToTree(keys) {
         let tree = {}
@@ -23,7 +24,6 @@
     let keys = []
     let selectedKeys = []
     let searchQuery = ""
-    $: refreshDashboard(searchQuery)
 
     function refreshDashboard(query) {
         path = window.location.hash.slice(1);
@@ -31,13 +31,12 @@
         keys = []
         for (const key of NetworkTables.getKeys()) {
             if (query === "" || key.includes(query)) {
-                keys.push(key.slice(1))
+                keys.push(key)
             }
         }
 
         selectedKeys = keys.filter(e => e.startsWith(path))
-        tree = {"/": keysToTree(keys)}
-        console.log(tree)
+        tree = keysToTree(keys)[""]
     }
 
     let isWsConnected = false;
@@ -49,7 +48,10 @@
         NetworkTables.addWsConnectionListener(function (connected) {
             if (connected) {
                 robotConnection = NetworkTables.getRobotAddress()
-                setTimeout(() => refreshDashboard(""), 500)
+                setTimeout(() => {
+                    refreshDashboard("")
+                    $: refreshDashboard(searchQuery)
+                }, 500)
             } else {
                 robotConnection = "Disconnected"
             }
@@ -62,7 +64,7 @@
 <main>
     <div class="tree">
         <input bind:value={searchQuery} placeholder="Search..." type="text">
-        <Tree label="/" path="" values={tree["/"]}/>
+        <Tree label="/" path="" values={tree}/>
         <p>
             WS: {isWsConnected ? "Connected" : "Disconnected"}
             <br>
@@ -72,7 +74,7 @@
 
     <div class="view">
         <div class="top-bar">
-            <h1>{path}</h1>
+            <h1>{path.endsWith("/") ? path : path + "/"}</h1>
             <div>
                 <button on:click={() => refreshDashboard("")}>Refresh</button>
                 <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
@@ -80,12 +82,16 @@
         </div>
         <div class="widgets">
             {#each selectedKeys as key}
-                {#if (typeof NetworkTables.getValue("/" + key) === 'number')}
-                    <Number label={key.replace(path + '/', "")} key={"/"+key}/>
-                {:else if (typeof NetworkTables.getValue("/" + key) === 'string')}
-                    <String label={key.replace(path + '/', "")} key={"/"+key}/>
-                {:else if (typeof NetworkTables.getValue("/" + key) === 'boolean')}
-                    <Boolean label={key.replace(path + '/', "")} key={"/"+key}/>
+                {#if (typeof NetworkTables.getValue(key) === 'number')}
+                    <Number label={key.replace(path + '/', '')} {key}/>
+                {:else if (typeof NetworkTables.getValue(key) === 'string')}
+                    <String label={key.replace(path + '/', '')} {key}/>
+                {:else if (typeof NetworkTables.getValue(key) === 'boolean')}
+                    <Boolean label={key.replace(path + '/', '')} {key}/>
+                {:else}
+                    <Wrapper>
+                        <span>{key.replace(path + '/', '')} ({typeof NetworkTables.getValue(key)})</span>
+                    </Wrapper>
                 {/if}
             {/each}
             <Field/>
