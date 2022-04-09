@@ -19,7 +19,6 @@
 </script>
 
 <ul>
-    <!-- transition:slide-->
     <li>
         <!-- If self has children -->
         {#if (Object.keys(values).length !== 0)}

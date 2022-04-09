@@ -30,13 +30,14 @@
 
         keys = []
         for (const key of NetworkTables.getKeys()) {
-            if (key.startsWith("/SmartDashboard") && (query === "" || key.includes(query))) {
+            if (query === "" || key.includes(query)) {
                 keys.push(key.slice(1))
             }
         }
 
         selectedKeys = keys.filter(e => e.startsWith(path))
-        tree = keysToTree(keys)
+        tree = {"/": keysToTree(keys)}
+        console.log(tree)
     }
 
     let isWsConnected = false;
@@ -60,9 +61,8 @@
 
 <main>
     <div class="tree">
-        <input type="text" placeholder="Search..." bind:value={searchQuery}>
-        <Tree label="SmartDashboard" path="SmartDashboard"
-              values={tree["SmartDashboard"] !== undefined ? tree["SmartDashboard"] : {}}/>
+        <input bind:value={searchQuery} placeholder="Search..." type="text">
+        <Tree label="/" path="" values={tree["/"]}/>
         <p>
             WS: {isWsConnected ? "Connected" : "Disconnected"}
             <br>
