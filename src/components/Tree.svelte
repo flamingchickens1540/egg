@@ -16,11 +16,11 @@
     }
     $: expanded = $expandAll
     $: arrowDown = expanded
-    $: {
-        if (path === "/LiveWindow" || path === "/FMSInfo" || path === "/Shuffleboard") {
-            expanded = false
-        }
-    }
+    // $: {
+    //     if (path === "/LiveWindow" || path === "/FMSInfo" || path === "/Shuffleboard") {
+    //         expanded = false
+    //     }
+    // }
 </script>
 
 <ul>

@@ -52,7 +52,7 @@
             if (connected) {
                 robotConnection = NetworkTables.getRobotAddress()
                 setTimeout(() => {
-                    refreshDashboard("")
+                    refreshDashboard(searchQuery)
                     loading = false
                 }, 500)
             } else {
@@ -62,7 +62,7 @@
     })
 </script>
 
-<svelte:window on:hashchange={() => refreshDashboard("")}/>
+<svelte:window on:hashchange={() => refreshDashboard(searchQuery)}/>
 
 <main>
     {#if loading}
@@ -86,7 +86,7 @@
                     <h1>{path.endsWith("/") ? path : path + "/"}</h1>
                 </div>
                 <div>
-                    <button on:click={() => refreshDashboard("")}>Refresh</button>
+                    <button on:click={() => refreshDashboard(searchQuery)}>Refresh</button>
                     <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
                 </div>
             </div>
@@ -109,7 +109,10 @@
                         </Wrapper>
                     {/if}
                 {/each}
-                <Field/>
+
+                {#if path.startsWith("/Shuffleboard/") && path.includes("Autonomous/Field")}
+                    <Field/>
+                {/if}
             </div>
         </div>
     {/if}
@@ -122,8 +125,7 @@
     }
 
     .tree {
-        padding-top: 10px;
-        padding-right: 10px;
+        padding: 10px;
         border-right: white 1px solid;
         max-height: 100vh;
         overflow-y: scroll;

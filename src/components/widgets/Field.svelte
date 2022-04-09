@@ -3,7 +3,22 @@
 
     let canvas;
     onMount(() => {
+        canvas.addEventListener("mousedown", function (e) {
+            const rect = canvas.getBoundingClientRect()
+            const x = e.clientX - rect.left
+            const y = e.clientY - rect.top
+            console.log(x, ",", y)
+        })
+
         let ctx = canvas.getContext("2d");
+        let topX = 175;
+        let topY = 40;
+        let path = new Path2D();
+        path.moveTo(topX, topY);
+        path.lineTo(topX - 5, topY + 10);
+        path.lineTo(topX + 5, topY + 10);
+        ctx.fillStyle = "red";
+        ctx.fill(path);
     })
 </script>
 
