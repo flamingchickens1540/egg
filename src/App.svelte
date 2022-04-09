@@ -38,6 +38,7 @@
         selectedKeys = keys.filter(e => e.startsWith(path))
         tree = keysToTree(keys)[""]
     }
+
     $: refreshDashboard(searchQuery)
 
     let isWsConnected = false;
@@ -108,12 +109,14 @@
     .tree {
         padding-top: 10px;
         padding-right: 10px;
-        height: 100vh;
         border-right: white 1px solid;
+        max-height: 100vh;
+        overflow-y: scroll;
     }
 
     .tree input {
         width: 100%;
+        padding-right: 100px;
     }
 
     .view {
