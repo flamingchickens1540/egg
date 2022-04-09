@@ -1,3 +1,1 @@
-# EGG
-
-Efficient Graphing Goblin
+![icon](public/icon.png)
