@@ -24,6 +24,7 @@
     let keys = []
     let selectedKeys = []
     let searchQuery = ""
+    let loading = true
 
     function refreshDashboard(query) {
         path = window.location.hash.slice(1);
@@ -52,6 +53,7 @@
                 robotConnection = NetworkTables.getRobotAddress()
                 setTimeout(() => {
                     refreshDashboard("")
+                    loading = false
                 }, 500)
             } else {
                 robotConnection = "Disconnected"
@@ -63,45 +65,54 @@
 <svelte:window on:hashchange={() => refreshDashboard("")}/>
 
 <main>
-    <div class="tree">
-        <input bind:value={searchQuery} placeholder="Search..." type="text">
-        <Tree label="/" path="" values={tree}/>
-        <p>
-            WS: {isWsConnected ? "Connected" : "Disconnected"}
-            <br>
-            Robot: {robotConnection}
-        </p>
-    </div>
+    {#if loading}
+        <div class="loading">
+            <img src="/large-transparent.png" alt="EGG Logo">
+        </div>
+    {:else}
+        <div class="tree">
+            <input bind:value={searchQuery} placeholder="Search..." type="text">
+            <Tree label="/" path="" values={tree}/>
+            <p>
+                WS: {isWsConnected ? "Connected" : "Disconnected"}
+                <br>
+                Robot: {robotConnection}
+            </p>
+        </div>
 
-    <div class="view">
-        <div class="top-bar">
-            <h1>{path.endsWith("/") ? path : path + "/"}</h1>
-            <div>
-                <button on:click={() => refreshDashboard("")}>Refresh</button>
-                <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
+        <div class="view">
+            <div class="top-bar">
+                <div>
+                    <h1>{path.endsWith("/") ? path : path + "/"}</h1>
+                </div>
+                <div>
+                    <button on:click={() => refreshDashboard("")}>Refresh</button>
+                    <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
+                </div>
+            </div>
+            <div class="widgets">
+                {#each selectedKeys as key}
+                    {#if (typeof NetworkTables.getValue(key) === 'number')}
+                        <Number label={key.replace(path + '/', '')} {key}/>
+                    {:else if (typeof NetworkTables.getValue(key) === 'string')}
+                        <String label={key.replace(path + '/', '')} {key}/>
+                    {:else if (typeof NetworkTables.getValue(key) === 'boolean')}
+                        <Boolean label={key.replace(path + '/', '')} {key}/>
+                    {:else if (typeof NetworkTables.getValue(key) === 'object')}
+                        <Wrapper>
+                            <span>{key.replace(path + '/', '')} ({JSON.stringify(NetworkTables.getValue(key))})</span>
+                        </Wrapper>
+                    {:else}
+                        <Wrapper>
+                            <span>{key.replace(path + '/', '')} ({typeof NetworkTables.getValue(key)}
+                                not implemented)</span>
+                        </Wrapper>
+                    {/if}
+                {/each}
+                <Field/>
             </div>
         </div>
-        <div class="widgets">
-            {#each selectedKeys as key}
-                {#if (typeof NetworkTables.getValue(key) === 'number')}
-                    <Number label={key.replace(path + '/', '')} {key}/>
-                {:else if (typeof NetworkTables.getValue(key) === 'string')}
-                    <String label={key.replace(path + '/', '')} {key}/>
-                {:else if (typeof NetworkTables.getValue(key) === 'boolean')}
-                    <Boolean label={key.replace(path + '/', '')} {key}/>
-                {:else if (typeof NetworkTables.getValue(key) === 'object')}
-                    <Wrapper>
-                        <span>{key.replace(path + '/', '')} ({JSON.stringify(NetworkTables.getValue(key))})</span>
-                    </Wrapper>
-                {:else}
-                    <Wrapper>
-                        <span>{key.replace(path + '/', '')} ({typeof NetworkTables.getValue(key)} not implemented)</span>
-                    </Wrapper>
-                {/if}
-            {/each}
-            <Field/>
-        </div>
-    </div>
+    {/if}
 </main>
 
 <style>
@@ -152,5 +163,12 @@
 
     .top-bar h1 {
         margin-top: 0;
+    }
+
+    .loading {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 500px;
     }
 </style>
