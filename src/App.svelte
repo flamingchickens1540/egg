@@ -42,21 +42,13 @@
 
     $: refreshDashboard(searchQuery)
 
-    let isWsConnected = false;
-    let robotConnection = "Waiting..."
     onMount(() => {
         NetworkTables.addWsConnectionListener(function (connected) {
-            isWsConnected = connected
-        }, true);
-        NetworkTables.addWsConnectionListener(function (connected) {
             if (connected) {
-                robotConnection = NetworkTables.getRobotAddress()
                 setTimeout(() => {
                     refreshDashboard(searchQuery)
                     loading = false
                 }, 500)
-            } else {
-                robotConnection = "Disconnected"
             }
         }, true);
     })
@@ -71,24 +63,17 @@
         </div>
     {:else}
         <div class="tree">
-            <input bind:value={searchQuery} placeholder="Search..." type="text">
+            <div class="row">
+                <input bind:value={searchQuery} placeholder="Search..." type="text">
+                <button on:click={() => refreshDashboard(searchQuery)}>⭮</button>
+                <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "⯆" : "⯈"}</button>
+            </div>
             <Tree label="/" path="" values={tree}/>
-            <p>
-                WS: {isWsConnected ? "Connected" : "Disconnected"}
-                <br>
-                Robot: {robotConnection}
-            </p>
         </div>
 
         <div class="view">
             <div class="top-bar">
-                <div>
-                    <h1>{path.endsWith("/") ? path : path + "/"}</h1>
-                </div>
-                <div>
-                    <button on:click={() => refreshDashboard(searchQuery)}>Refresh</button>
-                    <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
-                </div>
+                <h1>{path.endsWith("/") ? path : path + "/"}</h1>
             </div>
             <div class="widgets">
                 {#each selectedKeys as key}
@@ -172,5 +157,19 @@
         margin-left: auto;
         margin-right: auto;
         width: 500px;
+    }
+
+    .row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .tree button {
+        padding-left: 15px;
+        padding-right: 15px;
+        margin-left: 2px;
+        margin-right: 2px;
+        background-color: var(--button-hover);
     }
 </style>
