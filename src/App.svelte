@@ -75,6 +75,11 @@
             <div class="top-bar">
                 <h1>{path.endsWith("/") ? path : path + "/"}</h1>
             </div>
+
+            {#if path.startsWith("/Shuffleboard/") && path.includes("Autonomous/Field")}
+                <Field/>
+            {/if}
+
             <div class="widgets">
                 {#each selectedKeys as key}
                     {#if (typeof NetworkTables.getValue(key) === 'number')}
@@ -83,10 +88,10 @@
                         <String label={key.replace(path + '/', '')} {key}/>
                     {:else if (typeof NetworkTables.getValue(key) === 'boolean')}
                         <Boolean label={key.replace(path + '/', '')} {key}/>
-                    {:else if (typeof NetworkTables.getValue(key) === 'object')}
-                        <Wrapper>
-                            <span>{key.replace(path + '/', '')} ({JSON.stringify(NetworkTables.getValue(key))})</span>
-                        </Wrapper>
+                        <!--{:else if (typeof NetworkTables.getValue(key) === 'object')}-->
+                        <!--    <Wrapper>-->
+                        <!--        <span>{key.replace(path + '/', '')} ({JSON.stringify(NetworkTables.getValue(key))})</span>-->
+                        <!--    </Wrapper>-->
                     {:else}
                         <Wrapper>
                             <span>{key.replace(path + '/', '')} ({typeof NetworkTables.getValue(key)}
@@ -94,10 +99,6 @@
                         </Wrapper>
                     {/if}
                 {/each}
-
-                {#if path.startsWith("/Shuffleboard/") && path.includes("Autonomous/Field")}
-                    <Field/>
-                {/if}
             </div>
         </div>
     {/if}
