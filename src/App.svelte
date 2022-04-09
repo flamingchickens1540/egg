@@ -90,7 +90,7 @@
                     <Boolean label={key.replace(path + '/', '')} {key}/>
                 {:else}
                     <Wrapper>
-                        <span>{key.replace(path + '/', '')} ({typeof NetworkTables.getValue(key)})</span>
+                        <span>{key.replace(path + '/', '')} ({typeof NetworkTables.getValue(key)} not implemented)</span>
                     </Wrapper>
                 {/if}
             {/each}
