@@ -5,16 +5,7 @@
     import {onMount} from "svelte";
     import String from "./components/widgets/String.svelte";
     import Boolean from "./components/widgets/Boolean.svelte";
-
-    let exampleKeys = [
-        "SmartDashboard/shooter/tuning/frontRPM",
-        "SmartDashboard/shooter/tuning/rearRPM",
-        "SmartDashboard/indexer/sensors/front/beamBreak",
-        "SmartDashboard/indexer/sensors/rear/beamBreak",
-        "SmartDashboard/indexer/sensors/stagedForShooting",
-        "SmartDashboard/intake/sensors/frontRPM",
-        "SmartDashboard/intake/sensors/rearRPM",
-    ];
+    import Field from "./components/widgets/Field.svelte";
 
     function keysToTree(keys) {
         let tree = {}
@@ -31,13 +22,15 @@
     let tree = {}
     let keys = []
     let selectedKeys = []
+    let searchQuery = ""
+    $: refreshDashboard(searchQuery)
 
-    function refreshDashboard() {
+    function refreshDashboard(query) {
         path = window.location.hash.slice(1);
 
         keys = []
         for (const key of NetworkTables.getKeys()) {
-            if (key.startsWith("/SmartDashboard")) {
+            if (key.startsWith("/SmartDashboard") && (query === "" || key.includes(query))) {
                 keys.push(key.slice(1))
             }
         }
@@ -55,7 +48,7 @@
         NetworkTables.addWsConnectionListener(function (connected) {
             if (connected) {
                 robotConnection = NetworkTables.getRobotAddress()
-                setTimeout(refreshDashboard, 500)
+                setTimeout(() => refreshDashboard(""), 500)
             } else {
                 robotConnection = "Disconnected"
             }
@@ -63,10 +56,11 @@
     })
 </script>
 
-<svelte:window on:hashchange={refreshDashboard}/>
+<svelte:window on:hashchange={() => refreshDashboard("")}/>
 
 <main>
     <div class="tree">
+        <input type="text" placeholder="Search..." bind:value={searchQuery}>
         <Tree label="SmartDashboard" path="SmartDashboard"
               values={tree["SmartDashboard"] !== undefined ? tree["SmartDashboard"] : {}}/>
         <p>
@@ -80,7 +74,7 @@
         <div class="top-bar">
             <h1>{path}</h1>
             <div>
-                <button on:click={() => refreshDashboard()}>Refresh</button>
+                <button on:click={() => refreshDashboard("")}>Refresh</button>
                 <button on:click={() => {$expandAll = !$expandAll}}>{$expandAll ? "Collapse All" : "Expand All"}</button>
             </div>
         </div>
@@ -92,9 +86,9 @@
                     <String label={key.replace(path + '/', "")} key={"/"+key}/>
                 {:else if (typeof NetworkTables.getValue("/" + key) === 'boolean')}
                     <Boolean label={key.replace(path + '/', "")} key={"/"+key}/>
-                {:else}
                 {/if}
             {/each}
+            <Field/>
         </div>
     </div>
 </main>
